@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "target": "es2019",
+    "lib": ["es2019", "es2020", "dom"],
+    "removeComments": true,
+    "useUnknownInCatchVariables": false,
+    "esModuleInterop": true,
+    "sourceMap": true,
+    "outDir": "./dist/",
+    "declaration": true,
+    "skipLibCheck": true,
+    "typeRoots": ["./node_modules/@types", "./node_modules/n8n-workflow/types", "./types"]
+  },
+  "include": ["credentials/**/*", "nodes/**/*", "types/**/*"],
+  "exclude": ["node_modules/**/*", "dist/**/*"]
+}
