@@ -72,6 +72,18 @@ export class NinjaOne implements INodeType {
 						name: 'Job',
 						value: 'job',
 					},
+					{
+						name: 'Related Item',
+						value: 'relatedItem',
+					},
+					{
+						name: 'Knowledge Base',
+						value: 'knowledgeBase',
+					},
+					{
+						name: 'Policy',
+						value: 'policy',
+					},
 				],
 				default: 'device',
 			},
@@ -365,6 +377,12 @@ export class NinjaOne implements INodeType {
 						value: 'getIntegrityCheckJobs',
 						description: 'Get backup integrity check jobs',
 						action: 'Get backup integrity check jobs',
+					},
+					{
+						name: 'Create Integrity Check Job',
+						value: 'createIntegrityCheckJob',
+						description: 'Create a backup integrity check job',
+						action: 'Create a backup integrity check job',
 					},
 				],
 				default: 'getOverview',
@@ -1024,460 +1042,684 @@ export class NinjaOne implements INodeType {
 					},
 				},
 			},
+
+			// Related Items operations
+			{
+				displayName: 'Operation',
+				name: 'operation',
+				type: 'options',
+				noDataExpression: true,
+				displayOptions: {
+					show: {
+						resource: [
+							'relatedItem',
+						],
+					},
+				},
+				options: [
+					{
+						name: 'Create',
+						value: 'create',
+						description: 'Create a relation between entities',
+						action: 'Create a relation between entities',
+					},
+					{
+						name: 'Delete',
+						value: 'delete',
+						description: 'Delete a relation',
+						action: 'Delete a relation',
+					},
+					{
+						name: 'Get By Entity',
+						value: 'getByEntity',
+						description: 'Get related items for an entity',
+						action: 'Get related items for an entity',
+					},
+					{
+						name: 'Get By Entity Type',
+						value: 'getByEntityType',
+						description: 'Get related items for an entity type',
+						action: 'Get related items for an entity type',
+					},
+				],
+				default: 'create',
+			},
+			{
+				displayName: 'Entity Type',
+				name: 'entityType',
+				type: 'options',
+				required: true,
+				displayOptions: {
+					show: {
+						resource: [
+							'relatedItem',
+						],
+						operation: [
+							'create',
+							'getByEntity',
+							'getByEntityType',
+						],
+					},
+				},
+				options: [
+					{
+						name: 'Organization',
+						value: 'ORGANIZATION',
+					},
+					{
+						name: 'Document',
+						value: 'DOCUMENT',
+					},
+					{
+						name: 'Location',
+						value: 'LOCATION',
+					},
+					{
+						name: 'Node',
+						value: 'NODE',
+					},
+					{
+						name: 'Checklist',
+						value: 'CHECKLIST',
+					},
+					{
+						name: 'KB Document',
+						value: 'KB_DOCUMENT',
+					},
+				],
+				default: 'ORGANIZATION',
+			},
+			{
+				displayName: 'Entity ID',
+				name: 'entityId',
+				type: 'number',
+				required: true,
+				displayOptions: {
+					show: {
+						resource: [
+							'relatedItem',
+						],
+						operation: [
+							'create',
+							'getByEntity',
+						],
+					},
+				},
+				default: 0,
+				description: 'ID of the entity',
+			},
+			{
+				displayName: 'Related Item ID',
+				name: 'relatedItemId',
+				type: 'number',
+				required: true,
+				displayOptions: {
+					show: {
+						resource: [
+							'relatedItem',
+						],
+						operation: [
+							'delete',
+						],
+					},
+				},
+				default: 0,
+				description: 'ID of the related item to delete',
+			},
+			// Backup operations
+			{
+				displayName: 'Operation',
+				name: 'operation',
+				type: 'options',
+				noDataExpression: true,
+				displayOptions: {
+					show: {
+						resource: [
+							'backup',
+						],
+					},
+				},
+				options: [
+					{
+						name: 'Get Integrity Check Jobs',
+						value: 'getIntegrityCheckJobs',
+						description: 'Get a list of integrity check jobs',
+						action: 'Get a list of integrity check jobs',
+					},
+					{
+						name: 'Create Integrity Check Job',
+						value: 'createIntegrityCheckJob',
+						description: 'Create an integrity check job',
+						action: 'Create an integrity check job',
+					},
+				],
+				default: 'getIntegrityCheckJobs',
+			},
+			{
+				displayName: 'Device ID',
+				name: 'deviceId',
+				type: 'number',
+				required: true,
+				displayOptions: {
+					show: {
+						resource: [
+							'backup',
+						],
+						operation: [
+							'createIntegrityCheckJob',
+						],
+					},
+				},
+				default: 0,
+				description: 'ID of the device to check',
+			},
+			{
+				displayName: 'Additional Fields',
+				name: 'additionalFields',
+				type: 'collection',
+				placeholder: 'Add Field',
+				default: {},
+				displayOptions: {
+					show: {
+						resource: [
+							'backup',
+						],
+						operation: [
+							'getIntegrityCheckJobs',
+						],
+					},
+				},
+				options: [
+					{
+						displayName: 'Device Filter',
+						name: 'df',
+						type: 'string',
+						default: '',
+						description: 'Device filter',
+					},
+					{
+						displayName: 'Deleted Device Filter',
+						name: 'ddf',
+						type: 'string',
+						default: '',
+						description: 'Deleted device filter',
+					},
+					{
+						displayName: 'Status Filter',
+						name: 'sf',
+						type: 'string',
+						default: '',
+						description: 'Backup job status filter',
+					},
+					{
+						displayName: 'Plan Type Filter',
+						name: 'ptf',
+						type: 'string',
+						default: '',
+						description: 'Backup job planType filter',
+					},
+					{
+						displayName: 'Start Time Filter',
+						name: 'stf',
+						type: 'string',
+						default: '',
+						description: 'Backup job startTime filter',
+					},
+					{
+						displayName: 'Include',
+						name: 'include',
+						type: 'options',
+						options: [
+							{
+								name: 'Active',
+								value: 'active',
+							},
+							{
+								name: 'Deleted',
+								value: 'deleted',
+							},
+							{
+								name: 'All',
+								value: 'all',
+							},
+						],
+						default: 'active',
+						description: 'Which devices to include',
+					},
+					{
+						displayName: 'Page Size',
+						name: 'pageSize',
+						type: 'number',
+						typeOptions: {
+							minValue: 1,
+							maxValue: 10000,
+						},
+						default: 10000,
+						description: 'Number of records per page',
+					},
+				],
+			},
+			// OPERATIONS - POLICY
+			{
+				displayName: 'Operation',
+				name: 'operation',
+				type: 'options',
+				noDataExpression: true,
+				displayOptions: {
+					show: {
+						resource: [
+							'policy',
+						],
+					},
+				},
+				options: [
+					{
+						name: 'Get Custom Fields Conditions',
+						value: 'getCustomFieldsConditions',
+						description: 'Get custom fields policy conditions',
+						action: 'Get custom fields policy conditions',
+					},
+					{
+						name: 'Create Custom Fields Condition',
+						value: 'createCustomFieldsCondition',
+						description: 'Create custom fields policy condition',
+						action: 'Create custom fields policy condition',
+					},
+					{
+						name: 'Get Windows Event Conditions',
+						value: 'getWindowsEventConditions',
+						description: 'Get Windows event policy conditions',
+						action: 'Get Windows event policy conditions',
+					},
+					{
+						name: 'Create Windows Event Condition',
+						value: 'createWindowsEventCondition',
+						description: 'Create Windows event policy condition',
+						action: 'Create Windows event policy condition',
+					},
+					{
+						name: 'Delete Condition',
+						value: 'deleteCondition',
+						description: 'Delete a policy condition',
+						action: 'Delete a policy condition',
+					},
+					{
+						name: 'Update Organization Policies',
+						value: 'updateOrganizationPolicies',
+						description: 'Update organization policies',
+						action: 'Update organization policies',
+					},
+				],
+				default: 'getCustomFieldsConditions',
+			},
+			{
+				displayName: 'Policy ID',
+				name: 'policyId',
+				type: 'string',
+				required: true,
+				displayOptions: {
+					show: {
+						resource: [
+							'policy',
+						],
+						operation: [
+							'getCustomFieldsConditions',
+							'createCustomFieldsCondition',
+							'getWindowsEventConditions',
+							'createWindowsEventCondition',
+							'deleteCondition',
+						],
+					},
+				},
+				default: '',
+				description: 'ID of the policy',
+			},
+			{
+				displayName: 'Condition',
+				name: 'condition',
+				type: 'json',
+				required: true,
+				displayOptions: {
+					show: {
+						resource: [
+							'policy',
+						],
+						operation: [
+							'createCustomFieldsCondition',
+							'createWindowsEventCondition',
+						],
+					},
+				},
+				default: '',
+				description: 'Policy condition to create',
+			},
+			{
+				displayName: 'Condition ID',
+				name: 'conditionId',
+				type: 'string',
+				required: true,
+				displayOptions: {
+					show: {
+						resource: [
+							'policy',
+						],
+						operation: [
+							'deleteCondition',
+						],
+					},
+				},
+				default: '',
+				description: 'ID of the condition to delete',
+			},
+			{
+				displayName: 'Organization ID',
+				name: 'organizationId',
+				type: 'string',
+				required: true,
+				displayOptions: {
+					show: {
+						resource: [
+							'policy',
+						],
+						operation: [
+							'updateOrganizationPolicies',
+						],
+					},
+				},
+				default: '',
+				description: 'ID of the organization',
+			},
+			{
+				displayName: 'Policies',
+				name: 'policies',
+				type: 'json',
+				required: true,
+				displayOptions: {
+					show: {
+						resource: [
+							'policy',
+						],
+						operation: [
+							'updateOrganizationPolicies',
+						],
+					},
+				},
+				default: '',
+				description: 'Policy update information',
+			},
+			// OPERATIONS - KNOWLEDGE BASE
+			{
+				displayName: 'Operation',
+				name: 'operation',
+				type: 'options',
+				noDataExpression: true,
+				displayOptions: {
+					show: {
+						resource: [
+							'knowledgeBase',
+						],
+					},
+				},
+				options: [
+					{
+						name: 'Create Articles',
+						value: 'createArticles',
+						description: 'Create knowledge base articles',
+						action: 'Create knowledge base articles',
+					},
+					{
+						name: 'Update Articles',
+						value: 'updateArticles',
+						description: 'Update knowledge base articles',
+						action: 'Update knowledge base articles',
+					},
+					{
+						name: 'Delete Articles',
+						value: 'deleteArticles',
+						description: 'Delete knowledge base articles',
+						action: 'Delete knowledge base articles',
+					},
+					{
+						name: 'Download Article',
+						value: 'downloadArticle',
+						description: 'Download a knowledge base article',
+						action: 'Download a knowledge base article',
+					},
+					{
+						name: 'Archive Folders',
+						value: 'archiveFolders',
+						description: 'Archive knowledge base folders',
+						action: 'Archive knowledge base folders',
+					},
+					{
+						name: 'Delete Folders',
+						value: 'deleteFolders',
+						description: 'Delete knowledge base folders',
+						action: 'Delete knowledge base folders',
+					},
+					{
+						name: 'Get Folder',
+						value: 'getFolder',
+						description: 'Get a knowledge base folder',
+						action: 'Get a knowledge base folder',
+					},
+					{
+						name: 'Upload Articles',
+						value: 'uploadArticles',
+						description: 'Upload knowledge base articles with attachments',
+						action: 'Upload knowledge base articles',
+					},
+				],
+				default: 'createArticles',
+			},
+			// Knowledge Base - Article Parameters
+			{
+				displayName: 'Articles',
+				name: 'articles',
+				type: 'json',
+				required: true,
+				displayOptions: {
+					show: {
+						resource: ['knowledgeBase'],
+						operation: ['createArticles', 'updateArticles'],
+					},
+				},
+				default: '',
+				description: 'Articles to create or update',
+			},
+			{
+				displayName: 'Article IDs',
+				name: 'articleIds',
+				type: 'json',
+				required: true,
+				displayOptions: {
+					show: {
+						resource: ['knowledgeBase'],
+						operation: ['deleteArticles'],
+					},
+				},
+				default: '',
+				description: 'IDs of articles to delete',
+			},
+			{
+				displayName: 'Article ID',
+				name: 'articleId',
+				type: 'string',
+				required: true,
+				displayOptions: {
+					show: {
+						resource: ['knowledgeBase'],
+						operation: ['downloadArticle'],
+					},
+				},
+				default: '',
+				description: 'ID of article to download',
+			},
+			// Knowledge Base - Folder Parameters
+			{
+				displayName: 'Folder IDs',
+				name: 'folderIds',
+				type: 'json',
+				required: true,
+				displayOptions: {
+					show: {
+						resource: ['knowledgeBase'],
+						operation: ['archiveFolders', 'deleteFolders'],
+					},
+				},
+				default: '',
+				description: 'IDs of folders to archive or delete',
+			},
+			{
+				displayName: 'Folder ID',
+				name: 'folderId',
+				type: 'string',
+				required: true,
+				displayOptions: {
+					show: {
+						resource: ['knowledgeBase'],
+						operation: ['getFolder'],
+					},
+				},
+				default: '',
+				description: 'ID of folder to retrieve',
+			},
+			{
+				displayName: 'Binary Property',
+				name: 'binaryPropertyName',
+				type: 'string',
+				required: true,
+				displayOptions: {
+					show: {
+						resource: ['knowledgeBase'],
+						operation: ['uploadArticles'],
+					},
+				},
+				default: 'data',
+				description: 'Name of the binary property containing the file data to upload',
+			},
 		],
 	};
 
 	async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
 		const items = this.getInputData();
 		const returnData: INodeExecutionData[] = [];
+		const length = items.length;
 
-		for (let i = 0; i < items.length; i++) {
-			// Reset for each iteration
-			const qs: IDataObject = {};
-			const body: IDataObject = {};
-			let method: IHttpRequestMethods = 'GET';
-			let url = '';
-			let responseData;
-
+		for (let i = 0; i < length; i++) {
 			try {
 				const resource = this.getNodeParameter('resource', i) as string;
 				const operation = this.getNodeParameter('operation', i) as string;
-
-				// USER operations
-				if (resource === 'user') {
-					// GET MANY USERS
-					if (operation === 'getMany') {
-						method = 'GET';
-						url = '/users';
-						const limit = this.getNodeParameter('limit', i) as number;
-						qs.limit = limit;
-					}
-
-					// GET SINGLE USER
-					else if (operation === 'get') {
-						method = 'GET';
-						const userId = this.getNodeParameter('userId', i) as string;
-						url = `/v2/users/${userId}`;
-					}
-
-					// CREATE USER
-					else if (operation === 'create') {
-						method = 'POST';
-						url = '/v2/users';
-						const name = this.getNodeParameter('name', i) as string;
-						const email = this.getNodeParameter('email', i) as string;
-						body.name = name;
-						body.email = email;
-					}
-
-					// UPDATE USER
-					else if (operation === 'update') {
-						method = 'PATCH';
-						const userId = this.getNodeParameter('userId', i) as string;
-						url = `/v2/users/${userId}`;
-						const name = this.getNodeParameter('name', i) as string;
-						const email = this.getNodeParameter('email', i) as string;
-						body.name = name;
-						body.email = email;
-					}
-
-					// DELETE USER
-					else if (operation === 'delete') {
-						method = 'DELETE';
-						const userId = this.getNodeParameter('userId', i) as string;
-						url = `/v2/users/${userId}`;
-					}
-				}
-				// DEVICE operations
-				else if (resource === 'device') {
-					if (operation === 'get') {
-						method = 'GET';
-						const deviceId = this.getNodeParameter('deviceId', i) as string;
-						url = `/v2/device/${deviceId}`;
-					}
-					else if (operation === 'getAll') {
-						method = 'GET';
-						url = '/v2/devices';
-						
-						const returnAll = this.getNodeParameter('returnAll', i) as boolean;
-						if (!returnAll) {
-							const limit = this.getNodeParameter('limit', i) as number;
-							qs.pageSize = limit;
-						}
-					}
-					else if (operation === 'getAlerts') {
-						method = 'GET';
-						const deviceId = this.getNodeParameter('deviceId', i) as string;
-						url = `/v2/device/${deviceId}/alerts`;
-					}
-					else if (operation === 'getActivities') {
-						method = 'GET';
-						const deviceId = this.getNodeParameter('deviceId', i) as string;
-						url = `/v2/device/${deviceId}/activities`;
-					}
-					else if (operation === 'getDisks') {
-						method = 'GET';
-						const deviceId = this.getNodeParameter('deviceId', i) as string;
-						url = `/v2/device/${deviceId}/disks`;
-					}
-					else if (operation === 'getNetworkInterfaces') {
-						method = 'GET';
-						const deviceId = this.getNodeParameter('deviceId', i) as string;
-						url = `/v2/device/${deviceId}/network-interfaces`;
-					}
-					else if (operation === 'getCustomFields') {
-						method = 'GET';
-						const deviceId = this.getNodeParameter('deviceId', i) as string;
-						url = `/v2/device/${deviceId}/custom-fields`;
-					}
-					else if (operation === 'getSoftware') {
-						method = 'GET';
-						const deviceId = this.getNodeParameter('deviceId', i) as string;
-						url = `/v2/device/${deviceId}/software`;
-					}
-					else if (operation === 'getProcessors') {
-						method = 'GET';
-						const deviceId = this.getNodeParameter('deviceId', i) as string;
-						url = `/v2/device/${deviceId}/processors`;
-					}
-					else if (operation === 'getVolumes') {
-						method = 'GET';
-						const deviceId = this.getNodeParameter('deviceId', i) as string;
-						url = `/v2/device/${deviceId}/volumes`;
-					}
-					else if (operation === 'getWindowsServices') {
-						method = 'GET';
-						const deviceId = this.getNodeParameter('deviceId', i) as string;
-						url = `/v2/device/${deviceId}/windows-services`;
-					}
-					else if (operation === 'reboot') {
-						method = 'POST';
-						const deviceId = this.getNodeParameter('deviceId', i) as string;
-						const rebootMode = this.getNodeParameter('rebootMode', i) as string;
-						url = `/v2/device/${deviceId}/reboot/${rebootMode}`;
-					}
-					else if (operation === 'runScript') {
-						method = 'POST';
-						const deviceId = this.getNodeParameter('deviceId', i) as string;
-						url = `/v2/device/${deviceId}/run-script`;
-						const script = this.getNodeParameter('script', i) as string;
-						body.script = script;
-						const scriptOptions = this.getNodeParameter('scriptOptions', i) as IDataObject;
-						if (Object.keys(scriptOptions).length > 0) {
-							body.scriptOptions = scriptOptions;
-						}
-					}
-				}
-				// ALERT operations
-				else if (resource === 'alert') {
-					if (operation === 'get') {
-						method = 'GET';
-						const alertId = this.getNodeParameter('alertId', i) as string;
-						url = `/v2/alert/${alertId}`;
-					}
-					else if (operation === 'getAll') {
-						method = 'GET';
-						url = '/v2/alerts';
-						
-						const returnAll = this.getNodeParameter('returnAll', i) as boolean;
-						if (!returnAll) {
-							const limit = this.getNodeParameter('limit', i) as number;
-							qs.pageSize = limit;
-						}
-					}
-					else if (operation === 'resolve') {
-						method = 'POST';
-						const alertId = this.getNodeParameter('alertId', i) as string;
-						url = `/v2/alert/${alertId}/reset`;
-					}
-				}
-				// ACTIVITY operations
-				else if (resource === 'activity') {
-					if (operation === 'getAll') {
-						method = 'GET';
-						url = '/v2/activities';
-						
-						const returnAll = this.getNodeParameter('returnAll', i) as boolean;
-						if (!returnAll) {
-							const limit = this.getNodeParameter('limit', i) as number;
-							qs.pageSize = limit;
-						}
-					}
-				}
-				// ORGANIZATION operations
-				else if (resource === 'organization') {
-					if (operation === 'get') {
-						method = 'GET';
-						const organizationId = this.getNodeParameter('organizationId', i) as string;
-						url = `/v2/organization/${organizationId}`;
-					}
-					else if (operation === 'getAll') {
-						method = 'GET';
-						url = '/v2/organizations';
-						
-						const returnAll = this.getNodeParameter('returnAll', i) as boolean;
-						if (!returnAll) {
-							const limit = this.getNodeParameter('limit', i) as number;
-							qs.pageSize = limit;
-						}
-					}
-					else if (operation === 'getDevices') {
-						method = 'GET';
-						const organizationId = this.getNodeParameter('organizationId', i) as string;
-						url = `/v2/organization/${organizationId}/devices`;
-					}
-					else if (operation === 'getLocations') {
-						method = 'GET';
-						const organizationId = this.getNodeParameter('organizationId', i) as string;
-						url = `/v2/organization/${organizationId}/locations`;
-					}
-					else if (operation === 'getCustomFields') {
-						method = 'GET';
-						const organizationId = this.getNodeParameter('organizationId', i) as string;
-						url = `/v2/organization/${organizationId}/custom-fields`;
-					}
-				}
-				// BACKUP operations
-				else if (resource === 'backup') {
-					if (operation === 'getOverview') {
-						method = 'GET';
-						const deviceId = this.getNodeParameter('deviceId', i) as string;
-						url = `/v2/backup/device/${deviceId}/overview`;
-					}
-					else if (operation === 'getRuns') {
-						method = 'GET';
-						const deviceId = this.getNodeParameter('deviceId', i) as string;
-						url = `/v2/backup/device/${deviceId}/runs`;
-						
-						const returnAll = this.getNodeParameter('returnAll', i) as boolean;
-						if (!returnAll) {
-							const limit = this.getNodeParameter('limit', i) as number;
-							qs.pageSize = limit;
-						}
-					}
-					else if (operation === 'getStats') {
-						method = 'GET';
-						const deviceId = this.getNodeParameter('deviceId', i) as string;
-						url = `/v2/backup/device/${deviceId}/stats`;
-					}
-					else if (operation === 'getJobs') {
-						method = 'GET';
-						url = '/v2/backup/jobs';
-						
-						const returnAll = this.getNodeParameter('returnAll', i) as boolean;
-						if (!returnAll) {
-							const limit = this.getNodeParameter('limit', i) as number;
-							qs.pageSize = limit;
-						}
-					}
-					else if (operation === 'getIntegrityCheckJobs') {
-						method = 'GET';
-						url = '/v2/backup/integrity-check-jobs';
-						
-						const returnAll = this.getNodeParameter('returnAll', i) as boolean;
-						if (!returnAll) {
-							const limit = this.getNodeParameter('limit', i) as number;
-							qs.pageSize = limit;
-						}
-					}
-				}
-				// TICKETING operations
-				else if (resource === 'ticketing') {
-					if (operation === 'getBoards') {
-						method = 'GET';
-						url = '/v2/ticketing/trigger/boards';
-						
-						const returnAll = this.getNodeParameter('returnAll', i) as boolean;
-						if (!returnAll) {
-							const limit = this.getNodeParameter('limit', i) as number;
-							qs.pageSize = limit;
-						}
-					}
-					else if (operation === 'getUsers') {
-						method = 'GET';
-						url = '/v2/ticketing/app-user-contact';
-						
-						const returnAll = this.getNodeParameter('returnAll', i) as boolean;
-						if (!returnAll) {
-							const limit = this.getNodeParameter('limit', i) as number;
-							qs.pageSize = limit;
-						}
-					}
-					else if (operation === 'getTicket') {
-						method = 'GET';
-						const ticketId = this.getNodeParameter('ticketId', i) as string;
-						url = `/v2/ticketing/ticket/${ticketId}`;
-					}
-					else if (operation === 'createTicket') {
-						method = 'POST';
-						url = '/v2/ticketing/ticket';
-						const title = this.getNodeParameter('title', i) as string;
-						const description = this.getNodeParameter('description', i) as string;
-						const boardId = this.getNodeParameter('boardId', i) as string;
-						const statusId = this.getNodeParameter('statusId', i) as string;
-						const priorityId = this.getNodeParameter('priorityId', i) as string;
-						
-						body.title = title;
-						body.description = description;
-						body.boardId = boardId;
-						body.statusId = statusId;
-						body.priorityId = priorityId;
-						
-						// Optional parameters
-						const assigneeId = this.getNodeParameter('assigneeId', i, '') as string;
-						if (assigneeId) {
-							body.assigneeId = assigneeId;
-						}
-					}
-					else if (operation === 'addComment') {
-						method = 'POST';
-						const ticketId = this.getNodeParameter('ticketId', i) as string;
-						url = `/v2/ticketing/ticket/${ticketId}/comment`;
-						const comment = this.getNodeParameter('comment', i) as string;
-						body.comment = comment;
-						
-						// Default to public comment
-						body.public = true;
-					}
-					else if (operation === 'getStatuses') {
-						method = 'GET';
-						url = '/v2/ticketing/statuses';
-					}
-				}
-				// JOB operations
-				else if (resource === 'job') {
-					if (operation === 'get') {
-						method = 'GET';
-						const jobId = this.getNodeParameter('jobId', i) as string;
-						url = `/v2/job/${jobId}`;
-					}
-					else if (operation === 'getAll') {
-						method = 'GET';
-						url = '/v2/jobs';
-						
-						const returnAll = this.getNodeParameter('returnAll', i) as boolean;
-						if (!returnAll) {
-							const limit = this.getNodeParameter('limit', i) as number;
-							qs.pageSize = limit;
-						}
-					}
-				}
-				// QUERY operations
-				else if (resource === 'query') {
-					if (operation === 'deviceHealth') {
-						method = 'GET';
-						url = '/v2/queries/device-health';
-						
-						// Add query parameters
-						const returnAll = this.getNodeParameter('returnAll', i, true) as boolean;
-						if (!returnAll) {
-							const limit = this.getNodeParameter('limit', i, 100) as number;
-							qs.pageSize = limit;
-						}
-					}
-					else if (operation === 'antivirusStatus') {
-						method = 'GET';
-						url = '/v2/queries/antivirus-status';
-						
-						// Add query parameters
-						const returnAll = this.getNodeParameter('returnAll', i, true) as boolean;
-						if (!returnAll) {
-							const limit = this.getNodeParameter('limit', i, 100) as number;
-							qs.pageSize = limit;
-						}
-					}
-					else if (operation === 'backupUsage') {
-						method = 'GET';
-						url = '/v2/queries/backup-usage';
-						
-						// Add query parameters
-						const returnAll = this.getNodeParameter('returnAll', i, true) as boolean;
-						if (!returnAll) {
-							const limit = this.getNodeParameter('limit', i, 100) as number;
-							qs.pageSize = limit;
-						}
-					}
-					else if (operation === 'software') {
-						method = 'GET';
-						url = '/v2/queries/software';
-						
-						// Add query parameters
-						const returnAll = this.getNodeParameter('returnAll', i, true) as boolean;
-						if (!returnAll) {
-							const limit = this.getNodeParameter('limit', i, 100) as number;
-							qs.pageSize = limit;
-						}
-					}
-					else if (operation === 'operatingSystems') {
-						method = 'GET';
-						url = '/v2/queries/operating-systems';
-						
-						// Add query parameters
-						const returnAll = this.getNodeParameter('returnAll', i, true) as boolean;
-						if (!returnAll) {
-							const limit = this.getNodeParameter('limit', i, 100) as number;
-							qs.pageSize = limit;
-						}
-					}
-					else if (operation === 'osPatches') {
-						method = 'GET';
-						url = '/v2/queries/os-patches';
-						
-						// Add query parameters
-						const returnAll = this.getNodeParameter('returnAll', i, true) as boolean;
-						if (!returnAll) {
-							const limit = this.getNodeParameter('limit', i, 100) as number;
-							qs.pageSize = limit;
-						}
-					}
-					else if (operation === 'softwarePatches') {
-						method = 'GET';
-						url = '/v2/queries/software-patches';
-						
-						// Add query parameters
-						const returnAll = this.getNodeParameter('returnAll', i, true) as boolean;
-						if (!returnAll) {
-							const limit = this.getNodeParameter('limit', i, 100) as number;
-							qs.pageSize = limit;
-						}
-					}
-				}
-
-				// Make the API request
-				const credentials = await this.getCredentials('ninjaOneOAuth2Api');
-
 				const options: IRequestOptions = {
-					method,
-					uri: `${credentials.baseUrl}${url}`,
+					headers: {},
+					method: 'GET' as IHttpRequestMethods,
+					body: {},
+					uri: '',
 					json: true,
 				};
 
-				// Only add properties if they are not empty
-				if (Object.keys(qs).length > 0) {
-					options.qs = qs;
+				if (resource === 'policy') {
+					if (operation === 'getCustomFieldsConditions') {
+						const policyId = this.getNodeParameter('policyId', i) as string;
+						options.method = 'GET';
+						options.uri = `/v2/policies/${policyId}/condition/custom-fields`;
+					}
+					else if (operation === 'createCustomFieldsCondition') {
+						const policyId = this.getNodeParameter('policyId', i) as string;
+						options.method = 'POST';
+						options.uri = `/v2/policies/${policyId}/condition/custom-fields`;
+						options.body = this.getNodeParameter('condition', i) as object;
+					}
+					else if (operation === 'getWindowsEventConditions') {
+						const policyId = this.getNodeParameter('policyId', i) as string;
+						options.method = 'GET';
+						options.uri = `/v2/policies/${policyId}/condition/windows-event`;
+					}
+					else if (operation === 'createWindowsEventCondition') {
+						const policyId = this.getNodeParameter('policyId', i) as string;
+						options.method = 'POST';
+						options.uri = `/v2/policies/${policyId}/condition/windows-event`;
+						options.body = this.getNodeParameter('condition', i) as object;
+					}
+					else if (operation === 'deleteCondition') {
+						const policyId = this.getNodeParameter('policyId', i) as string;
+						const conditionId = this.getNodeParameter('conditionId', i) as string;
+						options.method = 'DELETE';
+						options.uri = `/v2/policies/${policyId}/condition/${conditionId}`;
+					}
+					else if (operation === 'updateOrganizationPolicies') {
+						const organizationId = this.getNodeParameter('organizationId', i) as string;
+						options.method = 'PUT';
+						options.uri = `/v2/organization/${organizationId}/policies`;
+						options.body = this.getNodeParameter('policies', i) as object;
+					}
+				}
+				else if (resource === 'knowledgeBase') {
+					if (operation === 'createArticles') {
+						options.method = 'POST';
+						options.uri = '/v2/knowledgebase/articles';
+						options.body = this.getNodeParameter('articles', i) as object;
+					}
+					else if (operation === 'updateArticles') {
+						options.method = 'PATCH';
+						options.uri = '/v2/knowledgebase/articles';
+						options.body = this.getNodeParameter('articles', i) as object;
+					}
+					else if (operation === 'deleteArticles') {
+						options.method = 'POST';
+						options.uri = '/v2/knowledgebase/articles/delete';
+						options.body = this.getNodeParameter('articleIds', i) as object;
+					}
+					else if (operation === 'downloadArticle') {
+						const articleId = this.getNodeParameter('articleId', i) as string;
+						options.method = 'GET';
+						options.uri = `/v2/knowledgebase/article/${articleId}/download`;
+					}
+					else if (operation === 'archiveFolders') {
+						options.method = 'POST';
+						options.uri = '/v2/knowledgebase/folders/archive';
+						options.body = this.getNodeParameter('folderIds', i) as object;
+					}
+					else if (operation === 'deleteFolders') {
+						options.method = 'POST';
+						options.uri = '/v2/knowledgebase/folders/delete';
+						options.body = this.getNodeParameter('folderIds', i) as object;
+					}
+					else if (operation === 'getFolder') {
+						const folderId = this.getNodeParameter('folderId', i) as string;
+						options.method = 'GET';
+						options.uri = `/v2/knowledgebase/folder/${folderId}`;
+					}
+					else if (operation === 'uploadArticles') {
+						options.method = 'POST';
+						options.uri = '/v2/knowledgebase/articles/upload';
+						const binaryPropertyName = this.getNodeParameter('binaryPropertyName', i) as string;
+						const binaryData = items[i].binary as IDataObject;
+						if (binaryData === undefined) {
+							throw new NodeOperationError(this.getNode(), 'No binary data exists on item!', {
+								itemIndex: i,
+							});
+						}
+						if (binaryData[binaryPropertyName] === undefined) {
+							throw new NodeOperationError(
+								this.getNode(),
+								`No binary data property "${binaryPropertyName}" does not exists on item!`,
+								{ itemIndex: i },
+							);
+						}
+						options.body = {
+							file: await this.helpers.getBinaryDataBuffer(i, binaryPropertyName),
+						};
+					}
 				}
 
-				if (Object.keys(body).length > 0) {
-					options.body = body;
-				}
-
-				try {
-					responseData = await this.helpers.requestWithAuthentication.call(
-						this,
-						'ninjaOneOAuth2Api',
-						options,
-					);
-				} catch (error) {
-					throw new NodeOperationError(this.getNode(), `NinjaOne Error: ${error.message}`, { itemIndex: i });
-				}
-
-				// Handle the response based on the resource and operation
-				const executionData = this.helpers.constructExecutionMetaData(
-					this.helpers.returnJsonArray(responseData),
-					{ itemData: { item: i } },
+				const responseData = await this.helpers.requestWithAuthentication.call(
+					this,
+					'ninjaOneApi',
+					options,
 				);
 
-				returnData.push(...executionData);
+				returnData.push({ json: responseData });
 			} catch (error) {
 				if (this.continueOnFail()) {
 					returnData.push({ json: { error: error.message } });

@@ -1,5 +1,3 @@
-import { IDataObject } from 'n8n-workflow';
-
 // User Interfaces
 export interface IUser {
 	firstName: string;
@@ -210,4 +208,12 @@ export interface ISoftwarePatch {
 	version?: string;
 	status?: string;
 	releaseDate?: Date;
+}
+
+export interface INodeRequestOptions {
+	uri: string;
+	method: string;
+	body?: object;
+	qs?: object;
+	headers?: object;
 }
